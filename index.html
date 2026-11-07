@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ClopeMan</title>
+  <meta name="description" content="Ton compteur de super-héros anti-clope." />
+  <meta name="theme-color" content="#ffd23f" />
+
+  <!-- iPhone : installation sur l'écran d'accueil -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ClopeMan" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --yellow: #ffd23f;
+      --yellow-dot: #ffc300;
+      --ink: #1d1d1f;
+      --paper: #fffaf0;
+      --pink: #ff4d6d;
+      --green: #06d6a0;
+      --blue: #3a86ff;
+      --orange: #fb8500;
+      --muted: #6b6b70;
+      --radius: 18px;
+      --shadow: 5px 5px 0 var(--ink);
+      --title: 'Bangers', 'Impact', system-ui, sans-serif;
+      --body: 'Nunito', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; }
+    body {
+      font-family: var(--body);
+      font-weight: 600;
+      color: var(--ink);
+      background-color: var(--yellow);
+      background-image: radial-gradient(var(--yellow-dot) 2.2px, transparent 2.6px);
+      background-size: 16px 16px;
+      min-height: 100vh;
+      padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 32px);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    main { max-width: 520px; margin: 0 auto; display: grid; gap: 18px; }
+
+    /* ---------- En-tête ---------- */
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .logo {
+      font-family: var(--title);
+      font-size: 44px;
+      line-height: 1;
+      letter-spacing: 1.5px;
+      margin: 0;
+      color: #fff;
+      -webkit-text-stroke: 2px var(--ink);
+      text-shadow: 4px 4px 0 var(--ink);
+      transform: rotate(-3deg);
+    }
+    .logo span { color: var(--pink); }
+    .icon-btn {
+      width: 46px; height: 46px; flex: none;
+      border: 3px solid var(--ink); border-radius: 50%;
+      background: #fff; box-shadow: 3px 3px 0 var(--ink);
+      font-size: 22px; cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .icon-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+    .bubble {
+      position: relative;
+      background: #fff;
+      border: 3px solid var(--ink);
+      border-radius: 22px;
+      padding: 12px 16px;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: var(--shadow);
+      min-height: 52px;
+      transition: opacity .35s;
+    }
+    .bubble::after {
+      content: '';
+      position: absolute; left: 34px; bottom: -17px;
+      border: 14px solid transparent;
+      border-top-color: var(--ink);
+      border-bottom: 0;
+    }
+    .bubble::before {
+      content: '';
+      position: absolute; left: 37px; bottom: -11px;
+      border: 11px solid transparent;
+      border-top-color: #fff;
+      border-bottom: 0;
+      z-index: 1;
+    }
+
+    /* ---------- Cartes ---------- */
+    .card {
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .card h2 {
+      font-family: var(--title);
+      font-weight: 400;
+      letter-spacing: 1px;
+      font-size: 26px;
+      margin: 0 0 10px;
+    }
+    .label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .sub { font-size: 14px; color: var(--muted); font-weight: 700; }
+
+    .hero { background: var(--ink); color: #fff; text-align: center; transform: rotate(-1deg); }
+    .hero .label { color: var(--yellow); }
+    .timer {
+      display: flex; justify-content: center; gap: 6px; margin: 8px 0 6px;
+      font-family: var(--title); font-weight: 400;
+    }
+    .timer div { min-width: 64px; }
+    .timer b { display: block; font-size: 46px; line-height: 1; font-weight: 400; color: #fff; }
+    .timer small { font-family: var(--body); font-size: 12px; font-weight: 800; color: #bbb; text-transform: uppercase; }
+    .rank {
+      display: inline-block; margin-top: 8px; padding: 4px 12px;
+      background: var(--pink); border: 2px solid #fff; border-radius: 999px;
+      font-weight: 900; font-size: 14px;
+    }
+    .hero .sub { color: #ccc; margin-top: 6px; }
+
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .stat { position: relative; overflow: hidden; cursor: pointer; user-select: none; }
+    .stat:active { transform: scale(.97); }
+    .stat.money { background: var(--green); transform: rotate(1.2deg); }
+    .stat.cigs { background: #fff; transform: rotate(-1.2deg); }
+    .stat .emoji { font-size: 30px; line-height: 1; }
+    .stat .big {
+      font-family: var(--title); font-size: 42px; line-height: 1.05; margin: 6px 0 2px;
+      letter-spacing: .5px; word-break: break-word;
+    }
+    .stat.money .sub { color: #0b4f3c; }
+
+    .wide { display: flex; align-items: center; gap: 14px; background: var(--blue); color: #fff; transform: rotate(.6deg); }
+    .wide .emoji { font-size: 40px; }
+    .wide .big { font-family: var(--title); font-size: 34px; line-height: 1; }
+    .wide .sub { color: #e3ecff; }
+
+    /* ---------- Bouton SOS ---------- */
+    .sos {
+      width: 100%;
+      font-family: var(--title); font-size: 30px; letter-spacing: 1px;
+      color: #fff; background: var(--pink);
+      border: 3px solid var(--ink); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 16px; cursor: pointer;
+      -webkit-text-stroke: 1px var(--ink);
+    }
+    .sos small { display: block; font-family: var(--body); font-size: 14px; -webkit-text-stroke: 0; font-weight: 800; }
+    .sos:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+
+    /* ---------- Ce que tu peux t'offrir ---------- */
+    .treats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .treat {
+      border: 2.5px solid var(--ink); border-radius: 14px; padding: 10px 6px;
+      text-align: center; background: #fff;
+    }
+    .treat .e { font-size: 30px; line-height: 1.1; }
+    .treat .n { font-family: var(--title); font-size: 26px; line-height: 1; margin-top: 4px; }
+    .treat .t { font-size: 12px; font-weight: 800; line-height: 1.2; }
+    .treat.locked { background: #eee; color: var(--muted); border-style: dashed; }
+    .treat.locked .e { filter: grayscale(1); opacity: .5; }
+    .treat.locked .n { font-family: var(--body); font-size: 13px; font-weight: 900; margin-top: 6px; }
+
+    .bar { height: 14px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; margin: 8px 0 4px; }
+    .bar i { display: block; height: 100%; background: repeating-linear-gradient(45deg, var(--orange) 0 10px, #ffb703 10px 20px); transition: width .6s; }
+
+    .goal-empty { text-align: center; }
+    .btn {
+      font-family: var(--body); font-weight: 900; font-size: 16px;
+      border: 3px solid var(--ink); border-radius: 12px; background: var(--yellow);
+      box-shadow: 3px 3px 0 var(--ink); padding: 10px 16px; cursor: pointer; color: var(--ink);
+    }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .btn.ghost { background: #fff; }
+
+    /* ---------- Santé ---------- */
+    .timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .timeline li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+    .timeline .dot {
+      width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink);
+      display: grid; place-items: center; font-size: 16px; background: #fff;
+    }
+    .timeline .done .dot { background: var(--green); }
+    .timeline .next .dot { background: var(--yellow); }
+    .timeline .todo { opacity: .5; }
+    .timeline .when { font-weight: 900; font-size: 14px; }
+    .timeline .what { font-size: 14px; line-height: 1.35; }
+
+    .proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+    .proj div { border: 2.5px solid var(--ink); border-radius: 14px; padding: 10px 4px; background: #fff; }
+    .proj b { display: block; font-family: var(--title); font-weight: 400; font-size: 22px; }
+    .proj .t { font-size: 12px; font-weight: 900; text-transform: uppercase; }
+
+    footer { text-align: center; font-size: 12px; color: #6b5300; line-height: 1.5; padding: 0 8px; }
+
+    /* ---------- Overlay SOS ---------- */
+    .overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: var(--ink); color: #fff;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: calc(env(safe-area-inset-top) + 20px) 24px calc(env(safe-area-inset-bottom) + 20px);
+      text-align: center; gap: 18px;
+    }
+    .overlay.open { display: flex; }
+    .overlay h2 { font-family: var(--title); font-weight: 400; font-size: 34px; margin: 0; color: var(--yellow); letter-spacing: 1px; }
+    .breath-wrap { width: 240px; height: 240px; display: grid; place-items: center; }
+    .breath {
+      width: 110px; height: 110px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #8ef5d6, var(--green));
+      border: 4px solid #fff;
+      display: grid; place-items: center;
+      font-family: var(--title); font-size: 26px; color: var(--ink); letter-spacing: 1px;
+      transition: transform 4s ease-in-out;
+    }
+    .breath.in { transform: scale(2); transition-duration: 4s; }
+    .breath.out { transform: scale(1); transition-duration: 6s; }
+    .countdown { font-family: var(--title); font-size: 48px; line-height: 1; }
+    .tip { max-width: 340px; font-size: 16px; font-weight: 800; color: #ddd; min-height: 44px; }
+    .overlay .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    /* ---------- Réglages ---------- */
+    dialog {
+      border: 3px solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow);
+      background: var(--paper); color: var(--ink); padding: 18px; width: min(92vw, 440px);
+      max-height: 88vh; overflow: auto;
+    }
+    dialog::backdrop { background: rgba(29, 29, 31, .6); }
+    dialog h2 { font-family: var(--title); font-weight: 400; font-size: 28px; margin: 0 0 12px; letter-spacing: 1px; }
+    .field { display: grid; gap: 4px; margin-bottom: 12px; }
+    .field label { font-size: 13px; font-weight: 900; }
+    .field input {
+      font: 800 17px var(--body); color: var(--ink);
+      border: 2.5px solid var(--ink); border-radius: 10px; padding: 10px; background: #fff; width: 100%;
+      -webkit-appearance: none; appearance: none; min-height: 46px;
+    }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    dialog .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+    dialog fieldset { border: 2px dashed var(--ink); border-radius: 12px; padding: 10px 12px 0; margin: 0 0 12px; }
+    dialog legend { font-weight: 900; font-size: 13px; padding: 0 6px; }
+
+    /* ---------- Confettis ---------- */
+    .confetti {
+      position: fixed; top: -40px; z-index: 100; pointer-events: none;
+      font-size: 26px; animation: fall linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); }
+    }
+    .pop { animation: pop .4s ease; }
+    @keyframes pop { 50% { transform: scale(1.12) rotate(-2deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .confetti { display: none; }
+      .breath { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 class="logo">CLOPE<span>MAN</span></h1>
+      <button class="icon-btn" id="openSettings" aria-label="Réglages">⚙️</button>
+    </header>
+
+    <div class="bubble" id="tagline">Salut champion·ne !</div>
+
+    <section class="card hero" aria-label="Temps sans fumer">
+      <div class="label" id="heroLabel">Libre depuis</div>
+      <div class="timer" id="timer">
+        <div><b id="tD">0</b><small>jours</small></div>
+        <div><b id="tH">00</b><small>heures</small></div>
+        <div><b id="tM">00</b><small>min</small></div>
+        <div><b id="tS">00</b><small>sec</small></div>
+      </div>
+      <div class="rank" id="rank">Niveau…</div>
+      <div class="sub" id="rankNext"></div>
+    </section>
+
+    <section class="stats">
+      <div class="card stat money" id="moneyCard" role="button" aria-label="Argent économisé">
+        <div class="emoji">💶</div>
+        <div class="label">Économisés</div>
+        <div class="big" id="money">0 €</div>
+        <div class="sub" id="moneySub"></div>
+      </div>
+      <div class="card stat cigs" id="cigsCard" role="button" aria-label="Cigarettes évitées">
+        <div class="emoji">🚭</div>
+        <div class="label">Clopes évitées</div>
+        <div class="big" id="cigs">0</div>
+        <div class="sub" id="cigsSub"></div>
+      </div>
+    </section>
+
+    <section class="card wide">
+      <div class="emoji">⏳</div>
+      <div>
+        <div class="label">Vie regagnée (environ)</div>
+        <div class="big" id="life">0 min</div>
+        <div class="sub">≈ 20 min par cigarette non fumée</div>
+      </div>
+    </section>
+
+    <button class="sos" id="openSos">
+      🔥 ENVIE DE FUMER ?
+      <small>Appuie ici, on la dégomme ensemble en 3 minutes</small>
+    </button>
+
+    <section class="card">
+      <h2>Avec ton magot, tu pourrais t'offrir…</h2>
+      <div class="treats" id="treats"></div>
+    </section>
+
+    <section class="card" id="goal"></section>
+
+    <section class="card">
+      <h2>Ton corps se répare 🫁</h2>
+      <ol class="timeline" id="timeline"></ol>
+    </section>
+
+    <section class="card">
+      <h2>Si tu continues…</h2>
+      <div class="proj" id="proj"></div>
+    </section>
+
+    <footer>
+      Tes données restent sur ton téléphone. <span id="cravingsFooter"></span><br />
+      Besoin d'un coup de main ? Tabac Info Service : <b>39 89</b> (gratuit)
+    </footer>
+  </main>
+
+  <!-- SOS envie -->
+  <div class="overlay" id="sos" role="dialog" aria-modal="true" aria-label="Envie de fumer">
+    <h2>Respire, super-héros</h2>
+    <div class="breath-wrap"><div class="breath" id="breath">Inspire</div></div>
+    <div class="countdown" id="sosCount">3:00</div>
+    <div class="tip" id="sosTip"></div>
+    <div class="row">
+      <button class="btn" id="sosWin">J'ai tenu ! 💪</button>
+      <button class="btn ghost" id="sosClose">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Réglages -->
+  <dialog id="settings">
+    <form method="dialog" id="settingsForm">
+      <h2>Réglages ⚙️</h2>
+      <div class="field">
+        <label for="fName">Ton prénom (facultatif)</label>
+        <input id="fName" name="name" type="text" autocomplete="given-name" placeholder="ex : Max" />
+      </div>
+      <div class="field">
+        <label for="fQuit">Date et heure de ta dernière clope</label>
+        <input id="fQuit" name="quit" type="datetime-local" required />
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="fPerDay">Clopes / jour</label>
+          <input id="fPerDay" name="perDay" type="number" inputmode="decimal" min="1" step="1" required />
+        </div>
+        <div class="field">
+          <label for="fPackSize">Clopes / paquet</label>
+          <input id="fPackSize" name="packSize" type="number" inputmode="numeric" min="1" step="1" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="fPackPrice">Prix du paquet (€)</label>
+        <input id="fPackPrice" name="packPrice" type="number" inputmode="decimal" min="0" step="0.01" required />
+      </div>
+      <fieldset>
+        <legend>🎯 Mon objectif (facultatif)</legend>
+        <div class="field">
+          <label for="fGoalName">Je m'offre…</label>
+          <input id="fGoalName" name="goalName" type="text" placeholder="ex : un week-end à Rome" />
+        </div>
+        <div class="field">
+          <label for="fGoalPrice">Ça coûte (€)</label>
+          <input id="fGoalPrice" name="goalPrice" type="number" inputmode="decimal" min="0" step="1" />
+        </div>
+      </fieldset>
+      <div class="row">
+        <button class="btn ghost" value="cancel" formnovalidate>Annuler</button>
+        <button class="btn" value="save" id="saveBtn">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ---------- Données ----------
+    const KEY = 'clopeman.v1';
+    const DEFAULTS = {
+      name: '',
+      quit: '2026-11-02T00:00', // lundi 2 novembre 2026
+      perDay: 10,
+      packPrice: 13.5,
+      packSize: 20,
+      goalName: '',
+      goalPrice: 0,
+      cravings: 0,
+    };
+    const MIN_PER_CIG = 20; // estimation UCL 2024 : ~20 min de vie perdues par cigarette
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        return raw ? { ...DEFAULTS, ...JSON.parse(raw) } : { ...DEFAULTS };
+      } catch (e) {
+        return { ...DEFAULTS };
+      }
+    }
+    function save() {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* stockage indisponible */ }
+    }
+    let state = load();
+
+    // ---------- Formats ----------
+    const eur = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+    const eur0 = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+    const int = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+    const pad = (n) => String(n).padStart(2, '0');
+    const $ = (id) => document.getElementById(id);
+
+    const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
+
+    function human(ms) {
+      if (ms < 0) ms = 0;
+      const d = Math.floor(ms / DAY), h = Math.floor((ms % DAY) / HOUR), m = Math.floor((ms % HOUR) / MIN);
+      if (d >= 365) { const y = Math.floor(d / 365); return `${y} an${y > 1 ? 's' : ''} ${d % 365} j`; }
+      if (d > 0) return `${d} j ${h} h`;
+      if (h > 0) return `${h} h ${pad(m)}`;
+      return `${Math.max(1, m)} min`;
+    }
+    function humanSeconds(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
+      return h ? `${h} h ${pad(m)} min ${pad(r)} s` : `${m} min ${pad(r)} s`;
+    }
+
+    // ---------- Contenu ----------
+    const TAGLINES = [
+      'Tes poumons t\'envoient des bisous 💋',
+      'Super-pouvoir débloqué : respirer à fond 🫁',
+      'Ton porte-monnaie fait la fête 🎉',
+      'Le cendrier est au chômage technique 😎',
+      'Ton odorat revient. Bonne nouvelle pour la cuisine, moins pour le métro 🚇',
+      'Chaque clope évitée est une baffe à l\'industrie du tabac 👋',
+      'Les envies durent 3 à 5 minutes. Toi, tu dures plus longtemps 💪',
+      'Tes baskets attendent ton premier footing sans cracher 👟',
+      'Ton cœur bat plus calmement. Il te dit merci ❤️',
+      'Tu sens bon. Si si, on a vérifié 🌸',
+    ];
+
+    const RANKS = [
+      [0, 'Apprenti héros 🐣'],
+      [1, 'Sidekick motivé 🦸'],
+      [3, 'Justicier en herbe 🌱'],
+      [7, 'Super-héros confirmé ⚡'],
+      [30, 'Légende du quartier 🏆'],
+      [90, 'Titan des poumons 🗿'],
+      [180, 'Demi-dieu du souffle 🌪️'],
+      [365, 'Immortel 👑'],
+    ];
+
+    const TREATS = [
+      ['🥐', 'croissants', 1.3],
+      ['☕', 'cafés en terrasse', 2.5],
+      ['🍺', 'pintes', 7],
+      ['🍔', 'burgers', 13],
+      ['🎬', 'places de ciné', 13],
+      ['🍣', 'plateaux sushis', 30],
+      ['🎮', 'jeux vidéo', 70],
+      ['👟', 'paires de baskets', 120],
+      ['🎧', 'casques audio', 250],
+      ['✈️', 'week-ends à Lisbonne', 400],
+      ['📱', 'smartphones', 1000],
+      ['🏝️', 'voyages au soleil', 2500],
+    ];
+
+    // Repères santé (sources : OMS, Tabac Info Service)
+    const HEALTH = [
+      [20 * MIN, '20 minutes', 'Ta tension et ton pouls redeviennent normaux.'],
+      [8 * HOUR, '8 heures', 'Le monoxyde de carbone dans ton sang a diminué de moitié, tes cellules sont mieux oxygénées.'],
+      [24 * HOUR, '24 heures', 'Le risque d\'infarctus commence déjà à baisser, tes poumons éliminent les résidus de fumée.'],
+      [48 * HOUR, '48 heures', 'Le goût et l\'odorat s\'améliorent, les terminaisons nerveuses repoussent.'],
+      [72 * HOUR, '72 heures', 'Tu respires plus facilement, les bronches se relâchent, tu as plus d\'énergie.'],
+      [14 * DAY, '2 semaines', 'La circulation s\'améliore, marcher et courir deviennent plus faciles.'],
+      [90 * DAY, '3 mois', 'Ta capacité pulmonaire peut augmenter jusqu\'à 30 %, la toux diminue.'],
+      [270 * DAY, '9 mois', 'Les cils des bronches ont repoussé : moins d\'infections, moins d\'essoufflement.'],
+      [365 * DAY, '1 an', 'Le risque d\'infarctus est divisé par deux.'],
+      [5 * 365 * DAY, '5 ans', 'Le risque de cancer du poumon a presque diminué de moitié.'],
+      [10 * 365 * DAY, '10 ans', 'Ton espérance de vie rejoint celle d\'un non-fumeur.'],
+    ];
+
+    const TIPS = [
+      'Bois un grand verre d\'eau, lentement.',
+      'Va marcher 5 minutes, même juste dans le couloir.',
+      'Mâche un chewing-gum ou croque une pomme.',
+      'Envoie un message à quelqu\'un que tu aimes.',
+      'L\'envie monte, culmine… et redescend. Toujours.',
+      'Pense à ce que tu vas t\'offrir avec ton magot.',
+      'Brosse-toi les dents : la clope aura un goût horrible.',
+      'Fais 10 squats. Oui, maintenant. Allez !',
+    ];
+
+    // ---------- Calculs ----------
+    function quitTime() {
+      const t = new Date(state.quit).getTime();
+      return Number.isFinite(t) ? t : Date.now();
+    }
+    function compute(now = Date.now()) {
+      const elapsed = Math.max(0, now - quitTime());
+      const days = elapsed / DAY;
+      const pricePerCig = state.packPrice / state.packSize;
+      const cigs = days * state.perDay;
+      const money = cigs * pricePerCig;
+      const perDayMoney = state.perDay * pricePerCig;
+      return { elapsed, days, cigs, money, perDayMoney, pricePerCig };
+    }
+
+    // ---------- Rendu ----------
+    let displayFactor = 0; // pour l'animation de comptage au démarrage
+
+    function renderTick() {
+      const c = compute();
+      const f = displayFactor;
+
+      // Chrono
+      const d = Math.floor(c.elapsed / DAY);
+      $('tD').textContent = int.format(d);
+      $('tH').textContent = pad(Math.floor((c.elapsed % DAY) / HOUR));
+      $('tM').textContent = pad(Math.floor((c.elapsed % HOUR) / MIN));
+      $('tS').textContent = pad(Math.floor((c.elapsed % MIN) / 1000));
+
+      // Argent & clopes
+      $('money').textContent = eur.format(c.money * f);
+      $('moneySub').textContent = `+${eur.format(c.perDayMoney)} chaque jour`;
+      $('cigs').textContent = int.format(Math.floor(c.cigs * f));
+      const interval = DAY / state.perDay;
+      const nextIn = interval - (c.elapsed % interval);
+      $('cigsSub').textContent = `prochaine évitée dans ${humanSeconds(nextIn)}`;
+
+      // Vie regagnée
+      $('life').textContent = human(c.cigs * MIN_PER_CIG * MIN * f);
+
+      // Niveau
+      let idx = 0;
+      RANKS.forEach(([dd], i) => { if (c.days >= dd) idx = i; });
+      $('rank').textContent = RANKS[idx][1];
+      const next = RANKS[idx + 1];
+      $('rankNext').textContent = next
+        ? `Prochain niveau dans ${human(next[0] * DAY - c.elapsed)}`
+        : 'Niveau max. Tu es une légende vivante.';
+    }
+
+    function renderSlow() {
+      const c = compute();
+
+      $('heroLabel').textContent = state.name ? `${state.name}, tu es libre depuis` : 'Libre depuis';
+
+      // Ce que tu peux t'offrir
+      $('treats').innerHTML = TREATS.map(([e, label, price]) => {
+        const n = Math.floor(c.money / price);
+        if (n >= 1) {
+          return `<div class="treat"><div class="e">${e}</div><div class="n">×${int.format(n)}</div><div class="t">${label}</div></div>`;
+        }
+        const waitMs = ((price - c.money) / c.perDayMoney) * DAY;
+        return `<div class="treat locked"><div class="e">${e}</div><div class="n">🔒 dans ${human(waitMs)}</div><div class="t">${label}</div></div>`;
+      }).join('');
+
+      // Objectif
+      const goal = $('goal');
+      if (state.goalName && state.goalPrice > 0) {
+        const pct = Math.min(100, (c.money / state.goalPrice) * 100);
+        const left = state.goalPrice - c.money;
+        const eta = left > 0
+          ? `Encore ${eur.format(left)}, soit environ ${human((left / c.perDayMoney) * DAY)} 🚀`
+          : 'OBJECTIF ATTEINT ! Fonce te faire plaisir 🎉';
+        goal.innerHTML = `
+          <h2>🎯 ${escapeHtml(state.goalName)}</h2>
+          <div class="label">${eur.format(Math.min(c.money, state.goalPrice))} / ${eur0.format(state.goalPrice)}</div>
+          <div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>
+          <div class="sub">${pct.toFixed(0)} % — ${eta}</div>`;
+      } else {
+        goal.innerHTML = `
+          <div class="goal-empty">
+            <h2>🎯 Fixe-toi une récompense</h2>
+            <p class="sub">Un truc qui te fait envie, payé par les clopes que tu ne fumes plus.</p>
+            <button class="btn" id="goalBtn">Choisir mon objectif</button>
+          </div>`;
+        $('goalBtn').onclick = openSettings;
+      }
+
+      // Santé
+      let nextShown = false;
+      $('timeline').innerHTML = HEALTH.map(([ms, when, what], i) => {
+        if (c.elapsed >= ms) {
+          return `<li class="done"><div class="dot">✅</div><div><div class="when">${when}</div><div class="what">${what}</div></div></li>`;
+        }
+        if (!nextShown) {
+          nextShown = true;
+          const prev = i ? HEALTH[i - 1][0] : 0;
+          const pct = ((c.elapsed - prev) / (ms - prev)) * 100;
+          return `<li class="next"><div class="dot">⏳</div><div><div class="when">${when} — dans ${human(ms - c.elapsed)}</div><div class="what">${what}</div><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div></div></li>`;
+        }
+        return `<li class="todo"><div class="dot">🔒</div><div><div class="when">${when}</div><div class="what">${what}</div></div></li>`;
+      }).join('');
+
+      // Projections
+      $('proj').innerHTML = [[30, '1 mois'], [365, '1 an'], [3650, '10 ans']].map(([dd, label]) =>
+        `<div><span class="t">${label}</span><b>${eur0.format(dd * c.perDayMoney)}</b><span class="sub">${int.format(dd * state.perDay)} clopes</span></div>`
+      ).join('');
+
+      $('cravingsFooter').textContent = state.cravings
+        ? `Envies dégommées : ${state.cravings} 💥`
+        : '';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    // ---------- Animations ----------
+    function countUp() {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) { displayFactor = 1; renderTick(); return; }
+      const start = performance.now(), dur = 1400;
+      displayFactor = 0;
+      const step = (t) => {
+        const p = Math.min(1, (t - start) / dur);
+        displayFactor = 1 - Math.pow(1 - p, 3);
+        renderTick();
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function confetti(emojis = ['💶', '🎉', '⭐', '💪', '🫁', '✨'], count = 28) {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.animationDuration = 1.8 + Math.random() * 1.8 + 's';
+        el.style.animationDelay = Math.random() * 0.5 + 's';
+        el.style.fontSize = 18 + Math.random() * 20 + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4500);
+      }
+    }
+
+    function pop(el) {
+      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+    }
+
+    // ---------- Phrases qui tournent ----------
+    let tagIdx = Math.floor(Math.random() * TAGLINES.length);
+    function rotateTagline() {
+      const b = $('tagline');
+      b.style.opacity = 0;
+      setTimeout(() => {
+        tagIdx = (tagIdx + 1) % TAGLINES.length;
+        b.textContent = TAGLINES[tagIdx];
+        b.style.opacity = 1;
+      }, 350);
+    }
+
+    // ---------- SOS envie ----------
+    let sosTimer = null, breathTimer = null, sosEnd = 0;
+    function openSos() {
+      $('sos').classList.add('open');
+      sosEnd = Date.now() + 3 * MIN;
+      const breath = $('breath');
+      let inhale = true;
+      const cycle = () => {
+        breath.className = 'breath ' + (inhale ? 'in' : 'out');
+        breath.textContent = inhale ? 'Inspire' : 'Expire';
+        breathTimer = setTimeout(cycle, inhale ? 4000 : 6000);
+        inhale = !inhale;
+      };
+      breath.className = 'breath';
+      setTimeout(cycle, 50);
+      let tipI = Math.floor(Math.random() * TIPS.length);
+      $('sosTip').textContent = TIPS[tipI];
+      const tick = () => {
+        const left = Math.max(0, sosEnd - Date.now());
+        const s = Math.ceil(left / 1000);
+        $('sosCount').textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
+        if (s > 0 && s % 20 === 0) { tipI = (tipI + 1) % TIPS.length; $('sosTip').textContent = TIPS[tipI]; }
+        if (left <= 0) {
+          clearInterval(sosTimer);
+          $('sosTip').textContent = 'Et voilà, l\'envie est passée. Tu gères 😎';
+        }
+      };
+      tick();
+      sosTimer = setInterval(tick, 1000);
+    }
+    function closeSos(won) {
+      clearInterval(sosTimer); clearTimeout(breathTimer);
+      $('sos').classList.remove('open');
+      if (won) {
+        state.cravings = (state.cravings || 0) + 1;
+        save(); renderSlow();
+        confetti(['💥', '💪', '🦸', '⭐', '🎉']);
+      }
+    }
+
+    // ---------- Réglages ----------
+    const form = $('settingsForm');
+    function openSettings() {
+      form.name.value = state.name;
+      form.quit.value = state.quit;
+      form.perDay.value = state.perDay;
+      form.packSize.value = state.packSize;
+      form.packPrice.value = state.packPrice;
+      form.goalName.value = state.goalName;
+      form.goalPrice.value = state.goalPrice || '';
+      $('settings').showModal();
+    }
+    $('settings').addEventListener('close', () => {
+      if ($('settings').returnValue !== 'save') return;
+      const num = (v, fb) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : fb; };
+      state = {
+        ...state,
+        name: form.name.value.trim(),
+        quit: form.quit.value || state.quit,
+        perDay: num(form.perDay.value, state.perDay),
+        packSize: num(form.packSize.value, state.packSize),
+        packPrice: num(form.packPrice.value, state.packPrice),
+        goalName: form.goalName.value.trim(),
+        goalPrice: num(form.goalPrice.value, 0),
+      };
+      save();
+      renderSlow();
+      countUp();
+    });
+
+    // ---------- Événements ----------
+    $('openSettings').onclick = openSettings;
+    $('openSos').onclick = openSos;
+    $('sosWin').onclick = () => closeSos(true);
+    $('sosClose').onclick = () => closeSos(false);
+    $('moneyCard').onclick = (e) => { pop(e.currentTarget); confetti(['💶', '💰', '🤑', '🪙']); };
+    $('cigsCard').onclick = (e) => { pop(e.currentTarget); confetti(['🚭', '💨', '🫁', '✨']); };
+
+    // Quand on revient sur l'appli : on relance l'animation
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) { renderSlow(); countUp(); rotateTagline(); }
+    });
+
+    // ---------- Démarrage ----------
+    $('tagline').textContent = TAGLINES[tagIdx];
+    renderSlow();
+    countUp();
+    setInterval(renderTick, 1000);
+    setInterval(renderSlow, 60 * 1000);
+    setInterval(rotateTagline, 7000);
+
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="11" cy="11" r="4" fill="#ffb703" />
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="#ffd23f" />
+  <rect width="512" height="512" fill="url(#dots)" opacity=".7" />
+  <!-- explosion -->
+  <polygon fill="#ff4d6d" stroke="#1d1d1f" stroke-width="14" stroke-linejoin="round"
+    points="256,40 300,150 410,90 360,200 480,230 370,285 440,400 320,345 290,470 240,360 140,450 165,330 40,320 150,250 60,140 185,170" />
+  <!-- broken cigarette, left half -->
+  <g transform="rotate(-24 256 256)">
+    <rect x="70" y="226" width="80" height="60" rx="8" fill="#f4a259" stroke="#1d1d1f" stroke-width="12" />
+    <polygon points="150,226 236,226 222,244 238,258 220,272 236,286 150,286" fill="#fff" stroke="#1d1d1f" stroke-width="12" stroke-linejoin="round" />
+  </g>
+  <!-- right half -->
+  <g transform="rotate(24 256 256)">
+    <polygon points="276,226 380,226 380,286 276,286 292,272 274,258 290,244" fill="#fff" stroke="#1d1d1f" stroke-width="12" stroke-linejoin="round" />
+    <rect x="380" y="226" width="40" height="60" rx="6" fill="#adb5bd" stroke="#1d1d1f" stroke-width="12" />
+  </g>
+</svg>
