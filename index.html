@@ -324,7 +324,7 @@
     </button>
 
     <section class="card">
-      <h2>Avec ton magot, tu pourrais t'offrir…</h2>
+      <h2>Avec ton magot, tu peux t'offrir…</h2>
       <div class="treats" id="treats"></div>
     </section>
 
@@ -414,8 +414,8 @@
       perDay: 10,
       packPrice: 13.5,
       packSize: 20,
-      goalName: '',
-      goalPrice: 0,
+      goalName: 'Un bon resto en amoureux',
+      goalPrice: 150,
       cravings: 0,
     };
     const MIN_PER_CIG = 20; // estimation UCL 2024 : ~20 min de vie perdues par cigarette
@@ -450,6 +450,12 @@
       if (h > 0) return `${h} h ${pad(m)}`;
       return `${Math.max(1, m)} min`;
     }
+    // Version courte pour les petites tuiles : « 4 j », « 20 h », « 35 min »
+    function humanShort(ms) {
+      if (ms >= DAY) return `${Math.ceil(ms / DAY)} j`;
+      if (ms >= HOUR) return `${Math.ceil(ms / HOUR)} h`;
+      return `${Math.max(1, Math.ceil(ms / MIN))} min`;
+    }
     function humanSeconds(ms) {
       const s = Math.max(0, Math.floor(ms / 1000));
       const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
@@ -481,19 +487,20 @@
       [365, 'Immortel 👑'],
     ];
 
+    // Sorties à 2, en amoureux ou avec ton enfant : [emoji, singulier, pluriel, prix pour 2]
     const TREATS = [
-      ['🥐', 'croissants', 1.3],
-      ['☕', 'cafés en terrasse', 2.5],
-      ['🍺', 'pintes', 7],
-      ['🍔', 'burgers', 13],
-      ['🎬', 'places de ciné', 13],
-      ['🍣', 'plateaux sushis', 30],
-      ['🎮', 'jeux vidéo', 70],
-      ['👟', 'paires de baskets', 120],
-      ['🎧', 'casques audio', 250],
-      ['✈️', 'week-ends à Lisbonne', 400],
-      ['📱', 'smartphones', 1000],
-      ['🏝️', 'voyages au soleil', 2500],
+      ['🍦', 'glace à 2', 'glaces à 2', 10],
+      ['🎳', 'bowling avec ton enfant', 'bowlings avec ton enfant', 25],
+      ['🎬', 'ciné à 2 + popcorn', 'cinés à 2 + popcorn', 32],
+      ['🧗', 'après-midi escalade à 2', 'après-midi escalade à 2', 40],
+      ['🍕', 'pizzeria en famille', 'pizzerias en famille', 45],
+      ['🦁', 'journée au zoo à 2', 'journées au zoo à 2', 60],
+      ['🎭', 'concert ou spectacle à 2', 'concerts ou spectacles à 2', 100],
+      ['🍷', 'bon resto en amoureux', 'bons restos en amoureux', 150],
+      ['💆', 'massage en duo', 'massages en duo', 180],
+      ['🎢', 'parc d\'attractions à 2', 'parcs d\'attractions à 2', 200],
+      ['🛖', 'nuit en cabane à 2', 'nuits en cabane à 2', 250],
+      ['✈️', 'week-end en amoureux', 'week-ends en amoureux', 500],
     ];
 
     // Repères santé (sources : OMS, Tabac Info Service)
@@ -578,13 +585,13 @@
       $('heroLabel').textContent = state.name ? `${state.name}, tu es libre depuis` : 'Libre depuis';
 
       // Ce que tu peux t'offrir
-      $('treats').innerHTML = TREATS.map(([e, label, price]) => {
+      $('treats').innerHTML = TREATS.map(([e, one, many, price]) => {
         const n = Math.floor(c.money / price);
         if (n >= 1) {
-          return `<div class="treat"><div class="e">${e}</div><div class="n">×${int.format(n)}</div><div class="t">${label}</div></div>`;
+          return `<div class="treat"><div class="e">${e}</div><div class="n">×${int.format(n)}</div><div class="t">${n > 1 ? many : one}</div></div>`;
         }
         const waitMs = ((price - c.money) / c.perDayMoney) * DAY;
-        return `<div class="treat locked"><div class="e">${e}</div><div class="n">🔒 dans ${human(waitMs)}</div><div class="t">${label}</div></div>`;
+        return `<div class="treat locked"><div class="e">${e}</div><div class="n">🔒 dans ${humanShort(waitMs)}</div><div class="t">${one}</div></div>`;
       }).join('');
 
       // Objectif

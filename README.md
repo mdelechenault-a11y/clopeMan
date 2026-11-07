@@ -8,8 +8,8 @@ Petite web app (PWA) pour iPhone qui aide à arrêter de fumer, avec un ton de B
 - 💶 L'argent économisé et 🚭 le nombre de cigarettes évitées (avec un compte à rebours jusqu'à la prochaine)
 - ⏳ La vie regagnée (environ 20 min par cigarette, d'après une étude de l'UCL de 2024)
 - 🔥 Un bouton **« Envie de fumer ? »** : 3 minutes de respiration guidée, avec des conseils, et un compteur d'envies vaincues
-- 🥐 Ce que l'argent économisé permet de s'offrir (croissants, pintes, baskets…) et dans combien de temps pour ce qui est encore verrouillé
-- 🎯 Un objectif personnel avec sa barre de progression
+- 🍷 Les sorties que l'argent économisé permet de s'offrir (ciné à 2, bowling avec son enfant, resto en amoureux…) et dans combien de temps pour ce qui est encore verrouillé
+- 🎯 Un objectif personnel avec sa barre de progression (par défaut : un bon resto en amoureux, 150 €)
 - 🫁 Les étapes de récupération du corps (sources : OMS, Tabac Info Service)
 - 📈 Des projections à 1 mois, 1 an et 10 ans
 
