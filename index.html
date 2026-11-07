@@ -211,16 +211,94 @@
 
     footer { text-align: center; font-size: 12px; color: #6b5300; line-height: 1.5; padding: 0 8px; }
 
-    /* ---------- Overlay SOS ---------- */
+    /* ---------- Overlay SOS + mini-jeux ---------- */
+    html.locked, html.locked body { overflow: hidden; }
     .overlay {
       position: fixed; inset: 0; z-index: 50;
       background: var(--ink); color: #fff;
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      padding: calc(env(safe-area-inset-top) + 20px) 24px calc(env(safe-area-inset-bottom) + 20px);
-      text-align: center; gap: 18px;
+      display: none; flex-direction: column; gap: 12px;
+      padding: calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 12px);
     }
     .overlay.open { display: flex; }
-    .overlay h2 { font-family: var(--title); font-weight: 400; font-size: 34px; margin: 0; color: var(--yellow); letter-spacing: 1px; }
+    .sos-top { display: flex; align-items: center; gap: 12px; }
+    .sos-timer {
+      flex: 1; display: flex; align-items: center; gap: 10px;
+      background: #2c2c30; border: 2px solid #48484d; border-radius: 14px; padding: 6px 12px;
+    }
+    .sos-timer b { font-family: var(--title); font-weight: 400; font-size: 30px; line-height: 1; color: var(--yellow); letter-spacing: 1px; }
+    .sos-timer small { font-size: 13px; font-weight: 800; color: #ccc; line-height: 1.2; }
+    .sos-timer.done { background: var(--green); border-color: #fff; }
+    .sos-timer.done b, .sos-timer.done small { color: var(--ink); }
+    .sos-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
+    .sos-win { width: 100%; font-size: 18px; padding: 12px; }
+
+    .menu-title { font-family: var(--title); font-weight: 400; font-size: 34px; margin: 4px 0 2px; color: var(--yellow); letter-spacing: 1px; }
+    .menu-sub { margin: 0 0 14px; color: #ccc; font-size: 15px; }
+    .games { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .game-card {
+      text-align: left; cursor: pointer; color: var(--ink);
+      border: 3px solid #fff; border-radius: 16px; padding: 12px; box-shadow: 4px 4px 0 #000;
+      font-family: var(--body); display: flex; flex-direction: column; gap: 4px;
+    }
+    .game-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+    .game-card .ge { font-size: 36px; line-height: 1; }
+    .game-card .gn { font-family: var(--title); font-size: 24px; letter-spacing: .5px; line-height: 1.05; }
+    .game-card .gd { font-size: 13px; font-weight: 700; line-height: 1.25; }
+    .game-card .gr { margin-top: auto; padding-top: 4px; font-size: 12px; font-weight: 900; opacity: .75; }
+
+    .game-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .game-head .name { flex: 1; font-family: var(--title); font-size: 24px; letter-spacing: .5px; color: var(--yellow); }
+    .game-head .score { font-weight: 900; font-size: 15px; }
+    .game-head .score b { font-family: var(--title); font-weight: 400; font-size: 26px; color: #fff; }
+    .btn.small { padding: 6px 10px; font-size: 14px; }
+    .stage {
+      position: relative; flex: 1; min-height: 320px;
+      border: 3px solid #fff; border-radius: 16px; overflow: hidden;
+      background: #2c2c30; touch-action: none; user-select: none; -webkit-user-select: none;
+    }
+    .game-canvas { position: absolute; inset: 0; display: block; touch-action: none; }
+    .game-over {
+      position: absolute; inset: 0; z-index: 5;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      background: rgba(29, 29, 31, .82); text-align: center; padding: 20px;
+    }
+    .game-over .go-title { font-family: var(--title); font-size: 46px; color: var(--yellow); line-height: 1; letter-spacing: 1px; }
+    .game-over .go-score { font-family: var(--title); font-size: 64px; line-height: 1; }
+    .game-over .go-best { font-weight: 800; color: #ccc; }
+    .game-over .go-best.rec { color: var(--green); font-size: 18px; }
+    .game-over .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+
+    /* Écrase-clopes */
+    .whack { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 14px; background: #f4d58d; color: var(--ink); }
+    .whack-bar { height: 14px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; }
+    .whack-bar i { display: block; height: 100%; width: 100%; background: var(--pink); }
+    .whack-grid { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 360px; margin: 0 auto; }
+    .hole {
+      position: relative; aspect-ratio: 1; padding: 0; border-radius: 50%; cursor: pointer; overflow: hidden;
+      border: 3px solid var(--ink); touch-action: manipulation;
+      background: radial-gradient(circle at 50% 55%, #2b2b2e 0 44%, #8d99ae 46% 100%);
+    }
+    .hole .item {
+      position: absolute; left: 0; right: 0; bottom: 14%;
+      font-size: clamp(34px, 11vw, 54px); line-height: 1; text-align: center;
+      transform: translateY(140%); transition: transform .14s ease-out;
+    }
+    .hole.up .item { transform: translateY(0); }
+    .hole.hit .item { transform: translateY(10%) scale(1.4, .35); filter: grayscale(1) brightness(.6); }
+    .hole.miss { background: radial-gradient(circle at 50% 55%, #2b2b2e 0 44%, var(--pink) 46% 100%); }
+    .whack-hint { margin: 0; text-align: center; font-size: 14px; font-weight: 800; line-height: 1.35; }
+    .float-txt {
+      position: absolute; transform: translate(-50%, 0); pointer-events: none; z-index: 3;
+      font-family: var(--title); font-size: 30px; color: #fff; white-space: nowrap;
+      -webkit-text-stroke: 1.5px var(--ink); animation: floatUp .7s ease-out forwards;
+    }
+    .float-txt.bad { color: var(--pink); }
+    @keyframes floatUp { to { transform: translate(-50%, -50px); opacity: 0; } }
+    .game-start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(244, 213, 141, .7); }
+    .game-start .btn { font-size: 22px; padding: 14px 22px; }
+
+    /* Zen */
+    .zen { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px; text-align: center; }
     .breath-wrap { width: 240px; height: 240px; display: grid; place-items: center; }
     .breath {
       width: 110px; height: 110px; border-radius: 50%;
@@ -232,9 +310,7 @@
     }
     .breath.in { transform: scale(2); transition-duration: 4s; }
     .breath.out { transform: scale(1); transition-duration: 6s; }
-    .countdown { font-family: var(--title); font-size: 48px; line-height: 1; }
-    .tip { max-width: 340px; font-size: 16px; font-weight: 800; color: #ddd; min-height: 44px; }
-    .overlay .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .tip { max-width: 340px; font-size: 16px; font-weight: 800; color: #ddd; min-height: 44px; margin: 0; }
 
     /* ---------- Réglages ---------- */
     dialog {
@@ -320,7 +396,7 @@
 
     <button class="sos" id="openSos">
       🔥 ENVIE DE FUMER ?
-      <small>Appuie ici, on la dégomme ensemble en 3 minutes</small>
+      <small>Appuie ici : mini-jeux et chrono pour la dégommer</small>
     </button>
 
     <section class="card">
@@ -346,16 +422,14 @@
     </footer>
   </main>
 
-  <!-- SOS envie -->
+  <!-- SOS envie : chrono + mini-jeux -->
   <div class="overlay" id="sos" role="dialog" aria-modal="true" aria-label="Envie de fumer">
-    <h2>Respire, super-héros</h2>
-    <div class="breath-wrap"><div class="breath" id="breath">Inspire</div></div>
-    <div class="countdown" id="sosCount">3:00</div>
-    <div class="tip" id="sosTip"></div>
-    <div class="row">
-      <button class="btn" id="sosWin">J'ai tenu ! 💪</button>
-      <button class="btn ghost" id="sosClose">Fermer</button>
+    <div class="sos-top">
+      <div class="sos-timer" id="sosTimer"><b id="sosCount">3:00</b><small id="sosMsg">Une envie dure 3 à 5 min.<br>Tiens jusqu'au bout du chrono !</small></div>
+      <button class="icon-btn" id="sosClose" aria-label="Fermer">✕</button>
     </div>
+    <div class="sos-body" id="sosBody"></div>
+    <button class="btn sos-win" id="sosWin">J'ai tenu ! 💪</button>
   </div>
 
   <!-- Réglages -->
@@ -402,6 +476,7 @@
     </form>
   </dialog>
 
+  <script src="games.js"></script>
   <script>
   (() => {
     'use strict';
@@ -417,6 +492,7 @@
       goalName: 'Un bon resto en amoureux',
       goalPrice: 150,
       cravings: 0,
+      best: {}, // records des mini-jeux
     };
     const MIN_PER_CIG = 20; // estimation UCL 2024 : ~20 min de vie perdues par cigarette
 
@@ -516,17 +592,6 @@
       [365 * DAY, '1 an', 'Le risque d\'infarctus est divisé par deux.'],
       [5 * 365 * DAY, '5 ans', 'Le risque de cancer du poumon a presque diminué de moitié.'],
       [10 * 365 * DAY, '10 ans', 'Ton espérance de vie rejoint celle d\'un non-fumeur.'],
-    ];
-
-    const TIPS = [
-      'Bois un grand verre d\'eau, lentement.',
-      'Va marcher 5 minutes, même juste dans le couloir.',
-      'Mâche un chewing-gum ou croque une pomme.',
-      'Envoie un message à quelqu\'un que tu aimes.',
-      'L\'envie monte, culmine… et redescend. Toujours.',
-      'Pense à ce que tu vas t\'offrir avec ton magot.',
-      'Brosse-toi les dents : la clope aura un goût horrible.',
-      'Fais 10 squats. Oui, maintenant. Allez !',
     ];
 
     // ---------- Calculs ----------
@@ -692,39 +757,104 @@
       }, 350);
     }
 
-    // ---------- SOS envie ----------
-    let sosTimer = null, breathTimer = null, sosEnd = 0;
+    // ---------- SOS envie + mini-jeux ----------
+    const GAMES = [
+      { key: 'runner', emoji: '🏃', name: 'Clope Run', desc: 'Saute par-dessus les clopes et ramasse les €', color: 'var(--yellow)' },
+      { key: 'shooter', emoji: '💦', name: 'Pshhht !', desc: 'Éteins les clopes qui tombent du ciel', color: '#ff8fab' },
+      { key: 'whack', emoji: '👊', name: 'Écrase-clopes', desc: '40 secondes pour en écraser un max', color: '#f4a259' },
+      { key: 'zen', emoji: '🧘', name: 'Mode zen', desc: 'Respiration guidée, tranquille', color: 'var(--green)', noScore: true },
+    ];
+    let sosTimer = null, sosEnd = 0, currentGame = null;
+
+    function stopGame() {
+      if (currentGame) { currentGame.stop(); currentGame = null; }
+    }
+
+    function showMenu() {
+      stopGame();
+      const best = state.best || {};
+      $('sosBody').innerHTML = `
+        <h2 class="menu-title">Occupe tes mains 🎮</h2>
+        <p class="menu-sub">Le temps d'une ou deux parties, l'envie sera passée.</p>
+        <div class="games">${GAMES.map((g) => `
+          <button class="game-card" data-game="${g.key}" style="background:${g.color}">
+            <span class="ge">${g.emoji}</span>
+            <span class="gn">${g.name}</span>
+            <span class="gd">${g.desc}</span>
+            ${g.noScore ? '' : `<span class="gr">🏆 Record : ${int.format(best[g.key] || 0)}</span>`}
+          </button>`).join('')}
+        </div>`;
+      $('sosBody').querySelectorAll('.game-card').forEach((b) => { b.onclick = () => playGame(b.dataset.game); });
+    }
+
+    function playGame(key) {
+      stopGame();
+      const g = GAMES.find((x) => x.key === key);
+      $('sosBody').innerHTML = `
+        <div class="game-head">
+          <button class="btn ghost small" id="gBack">← Jeux</button>
+          <span class="name">${g.emoji} ${g.name}</span>
+          ${g.noScore ? '' : '<span class="score">Score <b id="gScore">0</b></span>'}
+        </div>
+        <div class="stage" id="gStage"></div>`;
+      $('gBack').onclick = showMenu;
+      const stage = $('gStage');
+      currentGame = window.ClopeGames[key](stage, {
+        score: (n) => { const el = $('gScore'); if (el) el.textContent = int.format(n); },
+        end: (n) => showGameOver(key, n),
+      });
+    }
+
+    function showGameOver(key, score) {
+      state.best = { ...(state.best || {}) };
+      const prev = state.best[key] || 0;
+      const record = score > prev;
+      if (record) { state.best[key] = score; save(); }
+      const box = document.createElement('div');
+      box.className = 'game-over';
+      box.innerHTML = `
+        <div class="go-title">${record && prev > 0 ? 'NOUVEAU RECORD !' : 'FIN DE PARTIE'}</div>
+        <div class="go-score">${int.format(score)}</div>
+        <div class="go-best ${record && prev > 0 ? 'rec' : ''}">${record ? (prev > 0 ? `🏆 Ancien record : ${int.format(prev)}` : '🏆 Premier record !') : `🏆 Record : ${int.format(prev)}`}</div>
+        <div class="row">
+          <button class="btn" id="goAgain">Rejouer 🔁</button>
+          <button class="btn ghost" id="goMenu">Autre jeu</button>
+        </div>`;
+      $('gStage').appendChild(box);
+      $('goAgain').onclick = () => playGame(key);
+      $('goMenu').onclick = showMenu;
+      if (record && prev > 0) confetti(['🏆', '⭐', '🎉', '💪']);
+    }
+
     function openSos() {
       $('sos').classList.add('open');
+      document.documentElement.classList.add('locked');
+      $('sosTimer').classList.remove('done');
+      $('sosMsg').innerHTML = 'Une envie dure 3 à 5 min.<br>Tiens jusqu\'au bout du chrono !';
       sosEnd = Date.now() + 3 * MIN;
-      const breath = $('breath');
-      let inhale = true;
-      const cycle = () => {
-        breath.className = 'breath ' + (inhale ? 'in' : 'out');
-        breath.textContent = inhale ? 'Inspire' : 'Expire';
-        breathTimer = setTimeout(cycle, inhale ? 4000 : 6000);
-        inhale = !inhale;
-      };
-      breath.className = 'breath';
-      setTimeout(cycle, 50);
-      let tipI = Math.floor(Math.random() * TIPS.length);
-      $('sosTip').textContent = TIPS[tipI];
       const tick = () => {
         const left = Math.max(0, sosEnd - Date.now());
         const s = Math.ceil(left / 1000);
         $('sosCount').textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
-        if (s > 0 && s % 20 === 0) { tipI = (tipI + 1) % TIPS.length; $('sosTip').textContent = TIPS[tipI]; }
         if (left <= 0) {
           clearInterval(sosTimer);
-          $('sosTip').textContent = 'Et voilà, l\'envie est passée. Tu gères 😎';
+          $('sosTimer').classList.add('done');
+          $('sosCount').textContent = '✔';
+          $('sosMsg').innerHTML = 'L\'envie est passée, bravo ! 😎<br>Tu peux continuer à jouer.';
+          confetti(['🎉', '💪', '⭐', '🦸']);
         }
       };
       tick();
+      clearInterval(sosTimer);
       sosTimer = setInterval(tick, 1000);
+      showMenu();
     }
     function closeSos(won) {
-      clearInterval(sosTimer); clearTimeout(breathTimer);
+      stopGame();
+      clearInterval(sosTimer);
       $('sos').classList.remove('open');
+      document.documentElement.classList.remove('locked');
+      $('sosBody').innerHTML = '';
       if (won) {
         state.cravings = (state.cravings || 0) + 1;
         save(); renderSlow();

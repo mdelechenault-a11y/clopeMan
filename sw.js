@@ -1,8 +1,9 @@
 // Service worker : permet à l'appli de s'ouvrir même sans réseau.
-const CACHE = 'clopeman-v2';
+const CACHE = 'clopeman-v3';
 const ASSETS = [
   './',
   './index.html',
+  './games.js',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-192.png',
